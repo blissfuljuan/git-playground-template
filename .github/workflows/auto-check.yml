@@ -120,7 +120,7 @@ jobs:
           set -euo pipefail
           USER="${{ github.actor }}"
           FILE="${{ steps.grp.outputs.group_file }}"
-          echo "Checking $FILE for '- Lastname, Firstname (**@${USER}**)' format
+          echo "Checking $FILE for '- Lastname, Firstname (**@${USER}**)' format"
 
           # Accept -, *, or + bullets, any spaces, then @username
           # After the username, require a non-username char or EOL (prevents partial matches)
