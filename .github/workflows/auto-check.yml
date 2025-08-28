@@ -120,17 +120,17 @@ jobs:
           set -euo pipefail
           USER="${{ github.actor }}"
           FILE="${{ steps.grp.outputs.group_file }}"
-          echo "Checking $FILE for @${USER}"
+          echo "Checking $FILE for '- Lastname, Firstname (**@${USER}**)' format
 
           # Accept -, *, or + bullets, any spaces, then @username
           # After the username, require a non-username char or EOL (prevents partial matches)
-          if ! grep -En "^[-*+][[:space:]]+@${USER}([^A-Za-z0-9-]|$)" "$FILE" >/dev/null; then
-            echo "❌ Couldn't find a bullet line with @${USER} in $FILE" >&2
-            echo "Add a line like:" >&2
-            echo "- @${USER} — Your Name (Section: IT342-G0x)" >&2
-
-            echo "— Debug: showing lines that look like bullets with @ handles —"
-            grep -En "^[-*+][[:space:]]+@" "$FILE" || true
+          if ! grep -En "^[-*+][[:space:]]+[^@]*,[[:space:]]+[^@]*[[:space:]]\\((\\*\\*)?@${USER}(\\*\\*)?\\)[[:space:]]*$" "$FILE" >/dev/null; then
+            echo "❌ Couldn't find a properly formatted line for @${USER} in $FILE" >&2
+            echo "Please add a line exactly like this (with your own name):" >&2
+            echo "- Lastname, Firstname (**@${USER}**)" >&2
+            echo "" >&2
+            echo "— Debug: showing lines with parentheses+@ handles —" >&2
+            grep -En "^[-*+][[:space:]].*\\((\\*\\*)?@.*(\\*\\*)?\\).*$" "$FILE" || true
             exit 1
           fi
 
