@@ -87,9 +87,15 @@ jobs:
           BASE="${{ github.event.pull_request.base.sha }}"
           HEAD="${{ github.event.pull_request.head.sha }}"
 
-          # Consider only root files matching G<number>-CONTRIBUTORS.md
-          mapfile -t gfiles < <(git diff --name-only --diff-filter=AM "$BASE".."$HEAD" -- '*-CONTRIBUTORS.md' \
-                                | grep -E '-CONTRIBUTORS\.md$' || true)
+          # Collect added/modified files in THIS PR that match "*-CONTRIBUTORS.md"
+          # Using a git pathspec with '*' matches only the repo root (no '/')
+          mapfile -t gfiles < <(git diff --name-only --diff-filter=AM "$BASE".."$HEAD" -- '*-CONTRIBUTORS.md' || true)
+
+          # (Optional safety) Keep only true root-level matches (no '/'); not strictly needed,
+          # but preserves intent even if patterns change later.
+          if (( ${#gfiles[@]} > 0 )); then
+            mapfile -t gfiles < <(printf "%s\n" "${gfiles[@]}" | grep -E '^[^/]+-CONTRIBUTORS\.md$' || true)
+          fi
 
           if (( ${#gfiles[@]} == 0 )); then
             echo "No group contributors file changed. Edit your group file (e.g., CSIT327-CONTRIBUTORS.md) at the repo root." >&2
